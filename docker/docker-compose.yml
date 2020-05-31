@@ -1,0 +1,102 @@
+
+version: '2.3'
+
+services:
+  template-docker:
+    hostname: template-docker
+    # runtime: ${DOCKER_RUNTIME}
+    # runtime: nvidia
+    # privileged: true
+    environment:
+      # Display X Server GUI.
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      # Configure Nvidia Docker interface.
+      # - NVIDIA_VISIBLE_DEVICES=all
+      # - NVIDIA_DRIVER_CAPABILITIES=all
+      # - NVIDIA_REQUIRE_CUDA=cuda>=8.0
+      # from ARC repo
+      #  - HOST_USER_ID=1000
+      #  - HOST_GROUP_ID=1000
+      #  - DISPLAY
+    build:
+      context: .
+      # context: nrp-robot #from ARC repo
+      dockerfile: Dockerfile
+    volumes:
+      # Map ROS workspace folders.
+      - ./scripts/:/root/scripts/:rw
+      - ../workspace/:/root/workspace/:rw
+      # - /mnt/docker/share/:/root/share/:rw
+      # - /mnt/docker/rih/_.ros/:/root/.ros/:rw
+      # Grant display access to X Server.
+      # - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      # Grant bus access to FlexBE App.
+      # - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+      # - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      #from ARC repo     
+      # - $PWD/tnp-base-image/config_files:/root/config_files:rw
+      # - /mnt/docker/nrp-robot/catkin_ws:/root/catkin_ws:rw
+      # - /mnt/docker/nrp-robot/_.eclipse:/root/.eclipse:rw
+      # - $HOME/Downloads:/root/downloads_host:rw
+      # for Xserver forwarding to host
+      # - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      # for realsense libs
+      # - /lib/modules:/lib/modules
+      # for nvidia-docker-plugin
+      # - nvidia_driver_375.39:/usr/local/nvidia:ro
+      # solves  hardware access problems during runtime
+      # - ../../generate_surface_def/:root/generate_surface_def:rw
+      - ../data/:/root/data/:rw
+      # - /dev:/dev
+    network_mode: host
+    # extra_hosts:
+    #  - "ros-indigo-hiro:127.0.1.1"
+    #  - "hiro012:10.254.12.1"
+    #  - "nextage:10.254.12.1"
+    # ports:
+    #  - "11345:11345/tcp"
+    #  - "11311:11311/tcp"
+    # volume_driver: nvidia-docker
+    # devices:
+    #  - /dev/nvidiactl
+    #  - /dev/nvidia-uvm
+    #  - /dev/nvidia-uvm-tools
+    #  - /dev/nvidia0
+    #  #- /dev/nvidia1
+    #  #- /dev/nvidia2
+    #  #- /dev/nvidia3
+    # security_opt:
+    # - apparmor:unconfined
+    # cap_add:
+    #  - ALL
+    # dns:
+    #  - 160.69.69.100
+    #  - 8.8.8.8
+    # command: nvidia-smi
+    command: sh ./scripts/keep-container-running.sh
+    # command: /keepRunning.sh #from ARC repo
+  # ntp-server:
+  #   image: jfjallid/ntp-server
+  #   privileged: true
+  #   network_mode: host
+  #   volumes:
+  #   - $PWD/ntp-server:/var/lib/chrony
+  # this bind service is only needed when running in network with KUKA
+  # comment these lines if not the case
+  # bind-service:
+  #   environment:
+  #   - WEBMIN_ENABLED=false
+  #   image: sameersbn/bind:latest
+  #   ports:
+  #   - "160.69.69.100:53:53/udp"
+  #   dns:
+  #   - 127.0.0.1
+  #   restart: always
+  #   volumes:
+  #   - $PWD/bind-service:/data
+# volumes:
+#     nvidia_driver_375.39:
+#         external: true
+
+# sources for nvidia-docker plugin https://bitbucket.org/scpeters/unix-stuff/src/4a1228a910c2/gazebo8-docker/?at=master
