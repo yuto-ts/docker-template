@@ -1,11 +1,24 @@
 # ベースイメージ名:タグ名
-FROM continuumio/anaconda3:2019.03
+FROM ubuntu:18.04
+# FROM continuumio/anaconda3:2019.03
 
-# pipをアップグレードし必要なパッケージをインストール
-RUN pip install --upgrade pip && \
-    pip install autopep8 && \
-    pip install Keras && \
-    pip install tensorflow 
+# install package
+RUN apt-get update
+RUN apt-get install -y python3-pip \
+   git  \
+   language-pack-ja-base \
+   language-pack-ja
+
+# set japanese local
+RUN locale-gen en_US.UTF-8 
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+# RUN pip install --upgrade pip && \
+#     pip install autopep8 && \
+#     pip install Keras && \
+#     pip install tensorflow 
 
 ################################################################################
 
@@ -15,6 +28,10 @@ WORKDIR /root/
 # Copy scripts to working directory.
 COPY ./scripts/. /root/scripts/
 RUN chmod -R +x /root/scripts/*
+
+# pipをアップグレードし必要なパッケージをインストール
+RUN pip3 install --upgrade pip setuptools wheel
+RUN pip3 install -r scripts/requirements.txt
 
 # Overwrite entry point of parent image.
 ENTRYPOINT []
